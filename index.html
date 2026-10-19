@@ -1,0 +1,243 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mein Roboter</title>
+<style>
+  :root {
+    --navy: #1B2A4A;
+    --teal: #0F6B66;
+    --teal-light: #E6F2F1;
+    --amber: #E8A33D;
+    --amber-light: #FDF1E0;
+    --coral: #D9644F;
+    --coral-light: #FBEAE6;
+    --grey: #6B6B6B;
+    --light: #F2F2F2;
+    --bg: #FFFFFF;
+    --text: #1A1A1A;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14202E;
+      --text: #ECEFF3;
+      --light: #1F2E3F;
+      --teal-light: #16302E;
+      --amber-light: #332712;
+      --coral-light: #30201D;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14202E;
+    --text: #ECEFF3;
+    --light: #1F2E3F;
+    --teal-light: #16302E;
+    --amber-light: #332712;
+    --coral-light: #30201D;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 16px 48px;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Calibri, sans-serif;
+  }
+  header { padding: 28px 0 12px; text-align: center; }
+  header h1 { color: var(--navy); font-size: 26px; margin: 0 0 4px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) header h1 { color: #9FD6D2; } }
+  :root[data-theme="dark"] header h1 { color: #9FD6D2; }
+  header p { color: var(--grey); margin: 0; font-size: 14px; }
+  .card { max-width: 640px; margin: 16px auto; padding: 18px 20px; background: var(--light); border-radius: 14px; }
+  label { display: block; font-weight: 700; color: var(--navy); margin-bottom: 6px; font-size: 14px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) label { color: #9FD6D2; } }
+  :root[data-theme="dark"] label { color: #9FD6D2; }
+  input[type=text], textarea, select {
+    width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #CCC;
+    font-size: 15px; font-family: inherit; margin-bottom: 14px; background: var(--bg); color: var(--text);
+  }
+  textarea { min-height: 64px; resize: vertical; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > div { flex: 1 1 200px; }
+  button#buildBtn {
+    width: 100%; padding: 14px; border: none; border-radius: 10px;
+    background: var(--teal); color: white; font-size: 16px; font-weight: 700;
+    cursor: pointer; margin-top: 4px;
+  }
+  button#buildBtn:active { opacity: 0.85; }
+  #status { text-align: center; color: var(--grey); font-size: 13px; margin-top: 10px; min-height: 18px; }
+  .result { display: none; }
+  .result.show { display: block; }
+  .resultcard { max-width: 640px; margin: 14px auto; padding: 18px 20px; border-radius: 14px; }
+  .resultcard h2 { margin: 0 0 8px; font-size: 16px; }
+  .resultcard.pseudo { background: var(--light); border: 1px solid #D9D9D9; }
+  .resultcard.pseudo h2 { color: var(--navy); }
+  .resultcard.pseudo pre {
+    white-space: pre-wrap; font-family: "SF Mono", Consolas, monospace; font-size: 14px;
+    margin: 0; line-height: 1.5;
+  }
+  .resultcard.story { background: var(--amber-light); }
+  .resultcard.story h2 { color: #B5751F; }
+  .resultcard.tip { background: var(--coral-light); }
+  .resultcard.tip h2 { color: var(--coral); }
+  .resultcard p { margin: 0; line-height: 1.5; font-size: 14.5px; }
+  .robotstage {
+    max-width: 640px; margin: 14px auto; height: 90px; position: relative;
+    background: var(--teal-light); border-radius: 14px; overflow: hidden;
+  }
+  .robotstage .bot {
+    position: absolute; top: 50%; left: -40px; transform: translateY(-50%); font-size: 34px;
+    animation: roll 2.6s ease-in-out 1;
+    animation-fill-mode: forwards;
+  }
+  @keyframes roll {
+    0% { left: -40px; }
+    70% { left: calc(100% - 60px); }
+    85% { left: calc(100% - 80px); }
+    100% { left: calc(100% - 60px); }
+  }
+  footer { text-align: center; color: var(--grey); font-size: 11px; margin-top: 28px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 Baue deinen eigenen Roboter</h1>
+  <p>Beschreib deinen Roboter – das Tool schreibt daraus seinen Algorithmus</p>
+</header>
+
+<div class="card">
+  <label for="name">Wie heißt dein Roboter?</label>
+  <input type="text" id="name" placeholder="z. B. FutterBot 3000" maxlength="40">
+
+  <label for="problem">Welches Problem löst er?</label>
+  <textarea id="problem" placeholder="z. B. Er füttert mein Haustier jeden Tag zur gleichen Zeit, auch wenn ich nicht zuhause bin."></textarea>
+
+  <div class="row">
+    <div>
+      <label for="sensor">Was nimmt er wahr? (Sensor)</label>
+      <select id="sensor">
+        <option value="Hindernis / Abstand">Hindernis / Abstand</option>
+        <option value="Uhrzeit">Uhrzeit</option>
+        <option value="Akkustand">Akkustand</option>
+        <option value="Lichtfarbe / Ampel">Lichtfarbe / Ampel</option>
+        <option value="Lautstärke / Geräusch">Lautstärke / Geräusch</option>
+        <option value="eigene Idee">eigene Idee (unten beschreiben)</option>
+      </select>
+    </div>
+    <div>
+      <label for="verhalten">Was soll er tun? (WENN-DANN)</label>
+      <input type="text" id="verhalten" placeholder="z. B. WENN es 8 Uhr ist, DANN Futter ausgeben">
+    </div>
+  </div>
+
+  <button id="buildBtn">Roboter bauen 🚀</button>
+  <div id="status"></div>
+</div>
+
+<div class="robotstage" id="stage" style="display:none;">
+  <div class="bot">🤖</div>
+</div>
+
+<div class="result" id="result">
+  <div class="resultcard pseudo">
+    <h2>Dein Pseudocode</h2>
+    <pre id="pseudoOut"></pre>
+  </div>
+  <div class="resultcard story">
+    <h2>So funktioniert er</h2>
+    <p id="storyOut"></p>
+  </div>
+  <div class="resultcard tip">
+    <h2>Profi-Tipp</h2>
+    <p id="tipOut"></p>
+  </div>
+</div>
+
+<footer>Future Creators Lab Wien · Coding &amp; Logic Basics</footer>
+
+<script>
+// Kein Login, kein Server nötig – alles läuft lokal im Browser.
+
+var TIPS = [
+  "Was passiert, wenn der Sensor zweimal hintereinander etwas Ungewöhnliches meldet? Füge dafür eine weitere Bedingung hinzu!",
+  "Überlege: Braucht dein Roboter auch einen Schritt für den Fall, dass etwas schiefgeht (z. B. Akku leer)?",
+  "Du könntest eine zweite WENN-Bedingung ergänzen, die mit UND oder ODER mit der ersten verknüpft ist.",
+  "Denk an den Anfang: Was muss dein Roboter tun, bevor die Schleife überhaupt startet (z. B. sich einschalten)?",
+  "Gib deinem Roboter eine Regel für den SONST-Fall – was tut er, wenn die Bedingung NICHT zutrifft?",
+  "Könnte dein Roboter nach der Aktion kurz 'Bescheid geben' (z. B. ein Signal senden), dass er fertig ist?"
+];
+
+function pick(arr, seed) {
+  var i = Math.abs(seed) % arr.length;
+  return arr[i];
+}
+
+function hashStr(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; }
+  return h;
+}
+
+function extractWennDann(text) {
+  // Versucht "WENN ... DANN ..." aus dem Freitext zu lesen, sonst Fallback.
+  var m = text.match(/wenn\s+(.+?)\s*,?\s*dann\s+(.+)/i);
+  if (m) {
+    return { wenn: m[1].trim(), dann: m[2].trim() };
+  }
+  return null;
+}
+
+function build() {
+  var status = document.getElementById('status');
+  var name = document.getElementById('name').value.trim() || 'Mein Roboter';
+  var problem = document.getElementById('problem').value.trim();
+  var sensor = document.getElementById('sensor').value;
+  var verhaltenRaw = document.getElementById('verhalten').value.trim();
+
+  if (!problem) {
+    status.textContent = 'Beschreib zuerst, welches Problem dein Roboter löst.';
+    return;
+  }
+
+  var parsed = verhaltenRaw ? extractWennDann(verhaltenRaw) : null;
+  var wennTxt = parsed ? parsed.wenn : (sensor + ' etwas Bestimmtes erkennt');
+  var dannTxt = parsed ? parsed.dann : (verhaltenRaw || 'reagiert ' + name + ' passend');
+
+  var pseudocode =
+    'STARTE ' + name + '\n' +
+    '  WIEDERHOLE:\n' +
+    '    ' + sensor + ' prüfen\n' +
+    '    WENN ' + wennTxt + ' DANN\n' +
+    '      ' + dannTxt + '\n' +
+    '    SONST\n' +
+    '      weiter beobachten\n' +
+    'ENDE';
+
+  var story =
+    name + ' prüft immer wieder seinen Sensor (' + sensor + '). ' +
+    'Sobald ' + wennTxt + ', ' + (dannTxt.charAt(0).toLowerCase() + dannTxt.slice(1)) + '. ' +
+    'So löst er ganz automatisch das Problem: ' + problem;
+
+  var seed = hashStr(name + problem + sensor + verhaltenRaw);
+  var tip = pick(TIPS, seed);
+
+  document.getElementById('pseudoOut').textContent = pseudocode;
+  document.getElementById('storyOut').textContent = story;
+  document.getElementById('tipOut').textContent = tip;
+  document.getElementById('result').classList.add('show');
+
+  var stage = document.getElementById('stage');
+  stage.style.display = 'block';
+  var bot = stage.querySelector('.bot');
+  bot.style.animation = 'none';
+  void bot.offsetWidth;
+  bot.style.animation = 'roll 2.6s ease-in-out 1';
+
+  status.textContent = 'Fertig! Scroll runter zu deinem Algorithmus.';
+}
+
+document.getElementById('buildBtn').addEventListener('click', build);
+</script>
+
+</body>
+</html>
